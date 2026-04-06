@@ -1,0 +1,29 @@
+services:
+  postgres:
+    container_name: database-rsi
+    image: postgres:18-alpine
+    restart: always
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_rsi:/var/lib/postgresql/data
+    env_file: .env
+    networks:
+      - rsinet
+  pgadmin:
+    image: dpage/pgadmin4:9.10.0
+    container_name: pgadmin-rsi
+    env_file: .env
+    ports:
+      - "5433:80"
+    depends_on:
+      - postgres
+    networks:
+      - rsinet
+
+volumes:
+  postgres_rsi:
+
+networks:
+  rsinet:
+    driver: bridge
