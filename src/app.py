@@ -1,8 +1,7 @@
 from fastapi import FastAPI
 
+from src.routers.event import router as event_router
+
 app = FastAPI()
 
-
-@app.get("/")
-async def root():
-    return {"code": 200, "data": None, "message": "Hello, World!"}
+app.include_router(event_router)
