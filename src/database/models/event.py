@@ -5,6 +5,7 @@ from sqlmodel import Field, SQLModel
 
 
 class Event(SQLModel, table=True):
+    
     __table_args__ = {"extend_existing": True}
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
     name: str
