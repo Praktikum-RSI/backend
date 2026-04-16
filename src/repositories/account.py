@@ -1,8 +1,10 @@
+import uuid
+
 from fastapi import Depends
 from sqlmodel import Session, select
 
 from src.database.connection import get_session
-from src.database.models.account import Account
+from src.database.models.schema import Account
 
 
 class AccountRepository:
@@ -15,8 +17,16 @@ class AccountRepository:
         self.session.refresh(account)
         return account
 
-    def get_by_username(self, username: str) -> Account | None:
+    def get_by_id(self, account_id: uuid.UUID) -> Account | None:
         account = self.session.exec(
-            select(Account).where(Account.username == username)
+            select(Account).where(Account.id == account_id)
+        ).first()
+        return account
+
+    def get_by_email_or_username(self, identifier: str) -> Account | None:
+        account = self.session.exec(
+            select(Account).where(
+                Account.email == identifier or Account.username == identifier
+            )
         ).first()
         return account

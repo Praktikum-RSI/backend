@@ -1,8 +1,8 @@
 from fastapi import Depends
-from sqlmodel import Session
+from sqlmodel import Session, select
 
 from src.database.connection import get_session
-from src.database.models.role import Role
+from src.database.models.schema import Role
 
 
 class RoleRepository:
@@ -13,4 +13,8 @@ class RoleRepository:
         self.session.add(role)
         self.session.commit()
         self.session.refresh(role)
+        return role
+
+    def get_by_name(self, name: str) -> Role | None:
+        role = self.session.exec(select(Role).where(Role.name == name)).first()
         return role

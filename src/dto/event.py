@@ -3,7 +3,7 @@ from typing import Sequence
 
 from pydantic import BaseModel, Field
 
-from src.database.models.event import Event
+from src.database.models.schema import Event
 from src.dto.base import BaseResponse
 
 
