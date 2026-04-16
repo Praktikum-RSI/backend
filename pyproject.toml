@@ -11,12 +11,25 @@ dependencies = [
     "fastapi[standard] (>=0.135.3,<0.136.0)",
     "alembic (>=1.18.4,<2.0.0)",
     "python-dotenv (>=1.2.2,<2.0.0)",
-    "pwdlib[argon2] (>=0.3.0,<0.4.0)"
+    "sqlmodel (>=0.0.38,<0.0.39)",
+    "psycopg2-binary (>=2.9.11,<3.0.0)",
+    "pwdlib[argon2] (>=0.3.0,<0.4.0)",
+    "pyjwt (>=2.12.1,<3.0.0)"
 ]
 
 [tool.poetry]
 packages = [{include = "backend", from = "src"}]
 
+[tool.poe.tasks]
+dev = "fastapi dev src/app.py"
+lint = "poetry run ruff check src/"
+lint-fix = "poetry run ruff check src/ --fix"
+
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
 build-backend = "poetry.core.masonry.api"
+
+[dependency-groups]
+dev = [
+    "ruff (>=0.15.10,<0.16.0)"
+]

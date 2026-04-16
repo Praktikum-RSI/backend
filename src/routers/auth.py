@@ -1,23 +1,36 @@
-from fastapi import Depends, status
-from fastapi.routing import APIRouter
+from fastapi import APIRouter, Depends, Request, Response, Security, status
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
-from src.controllers.auth.login import LoginController
-from src.controllers.auth.register import RegisterController
-from src.dto.auth.login import LoginRequest
-from src.dto.auth.register import RegisterRequest
+from src.controllers.auth import AuthController
+from src.dto.auth import LoginRequest, LogoutRequest, RegisterRequest
 
-auth_router = APIRouter(prefix="/auth")
+auth_router = APIRouter(tags=["Authentikasi"])
 
 
-@auth_router.post("/")
-async def login(
-    data: LoginRequest, controller: LoginController = Depends(LoginController)
-):
-    return controller.login(data)
-
-
-@auth_router.post("/", status_code=status.HTTP_201_CREATED)
+@auth_router.post("/register", status_code=status.HTTP_201_CREATED)
 def register(
-    data: RegisterRequest, controller: RegisterController = Depends(RegisterController)
-):
-    return controller.register(data)
+    req_body: RegisterRequest,
+    controller: AuthController = Depends(AuthController),
+) -> Response:
+    response = controller.register(req_body)
+    return response
+
+
+@auth_router.post("/login", status_code=status.HTTP_200_OK)
+def login(
+    req_body: LoginRequest,
+    controller: AuthController = Depends(AuthController),
+) -> Response:
+    response = controller.login(req_body)
+    return response
+
+
+@auth_router.post("/logout", status_code=status.HTTP_200_OK)
+def logout(
+    request: Request,
+    controller: AuthController = Depends(AuthController),
+    credentials: HTTPAuthorizationCredentials = Security(HTTPBearer()),
+) -> Response:
+    data = LogoutRequest(account_id=request.state.account_id)
+    response = controller.logout(data)
+    return response

@@ -5,7 +5,7 @@ from fastapi import Depends
 from sqlmodel import Session, select
 
 from src.database.connection import get_session
-from src.database.models.event import Event
+from src.database.models.schema import Event
 from src.dto.event import UpdateEventRequest
 
 

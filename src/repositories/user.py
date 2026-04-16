@@ -2,7 +2,7 @@ from fastapi import Depends
 from sqlmodel import Session
 
 from src.database.connection import get_session
-from src.database.models.user import User
+from src.database.models.schema import User
 
 
 class UserRepository:
@@ -14,4 +14,3 @@ class UserRepository:
         self.session.commit()
         self.session.refresh(user)
         return user
-    
