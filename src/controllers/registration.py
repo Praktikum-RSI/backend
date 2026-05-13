@@ -3,11 +3,11 @@ import uuid
 from fastapi import Depends, Response
 
 from src.dto.event import RegisterEventResponse
-from src.services.registration import RegistrationService
+from src.services.registration import RegistrationRepository
 
 
 class RegistrationController:
-    def __init__(self, registration_service: RegistrationService = Depends(RegistrationService)):
+    def __init__(self, registration_service: RegistrationRepository = Depends(RegistrationRepository)):
         self.registration_service = registration_service
 
     def register_to_event(self, event_id: uuid.UUID, account_id: uuid.UUID) -> Response:
