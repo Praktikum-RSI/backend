@@ -1,7 +1,7 @@
 import uuid
 
 from fastapi import Depends
-from sqlmodel import Session, select
+from sqlmodel import Session, select, func
 
 from src.database.connection import get_session
 from src.database.models.schema import Registration
@@ -33,6 +33,5 @@ class RegistrationRepository:
         ).all()
 
     def count_by_event(self, event_id: uuid.UUID) -> int:
-        return self.session.exec(
-            select(Registration).where(Registration.event_id == event_id)
-        ).count()
+        statement = select(func.count()).select_from(Registration).where(Registration.event_id == event_id)
+        return self.session.exec(statement).one()

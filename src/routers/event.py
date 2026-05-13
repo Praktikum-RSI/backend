@@ -1,7 +1,7 @@
 import uuid
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, Path, Response, Security, status
+from fastapi import APIRouter, Depends, Path, Request, Response, Security, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
 from src.controllers.event import EventController
@@ -39,10 +39,14 @@ def get_events(
 )
 def register_event(
     event_id: Annotated[uuid.UUID, Path(title="The ID of the event to register")],
+    request: Request,
     controller: RegistrationController = Depends(RegistrationController),
     credentials: HTTPAuthorizationCredentials = Security(HTTPBearer()),
 ) -> Response:
-    return controller.register_to_event(event_id)
+    return controller.register_to_event(
+        event_id=event_id, 
+        account_id=request.state.account_id
+    )
 
 
 @event_router.get("/{event_id}", status_code=status.HTTP_200_OK)
