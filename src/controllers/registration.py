@@ -18,3 +18,12 @@ class RegistrationController:
             headers={"Content-Type": "application/json"},
         )
         return response
+
+    def get_attendees(self, event_id: uuid.UUID) -> Response:
+        result = self.registration_service.get_attendees_by_event(event_id)
+        response = Response(
+            status_code=result.code,
+            content=result.model_dump_json(),
+            headers={"Content-Type": "application/json"},
+        )
+        return response

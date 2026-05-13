@@ -1,81 +1,49 @@
 import uuid
 
-from fastapi import Depends, HTTPException
-from starlette import status
+from fastapi import Depends
+from sqlmodel import Session, select, func
 
-from src.database.models.schema import Registration
-from src.dto.event import RegisterEventResponse
-from src.repositories.account import AccountRepository
-from src.repositories.event import EventRepository
-from src.repositories.registration import RegistrationRepository
+from src.database.connection import get_session
+from src.database.models.schema import Account, Registration, User
 
 
-class RegistrationService:
-    def __init__(
-        self,
-        account_repository: AccountRepository = Depends(AccountRepository),
-        event_repository: EventRepository = Depends(EventRepository),
-        registration_repository: RegistrationRepository = Depends(RegistrationRepository),
-    ):
-        self.account_repository = account_repository
-        self.event_repository = event_repository
-        self.registration_repository = registration_repository
+class RegistrationRepository:
+    def __init__(self, session: Session = Depends(get_session)) -> None:
+        self.session = session
 
-    def register_to_event(
+    def create(self, registration: Registration) -> Registration:
+        self.session.add(registration)
+        self.session.commit()
+        self.session.refresh(registration)
+        return registration
+
+    def get_by_event_and_account(
         self, event_id: uuid.UUID, account_id: uuid.UUID
-    ) -> RegisterEventResponse:
-        try:
-            event = self.event_repository.getById(event_id)
-        except ValueError:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail={
-                    "code": status.HTTP_404_NOT_FOUND,
-                    "data": None,
-                    "message": "Event tidak ditemukan",
-                },
+    ) -> Registration | None:
+        return self.session.exec(
+            select(Registration).where(
+                Registration.event_id == event_id,
+                Registration.account_id == account_id,
             )
+        ).first()
 
-        account = self.account_repository.get_by_id(account_id)
-        if not account:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail={
-                    "code": status.HTTP_404_NOT_FOUND,
-                    "data": None,
-                    "message": "Akun tidak ditemukan",
-                },
-            )
+    def get_by_account(self, account_id: uuid.UUID) -> list[Registration]:
+        return self.session.exec(
+            select(Registration).where(Registration.account_id == account_id)
+        ).all()
 
-        existing_registration = self.registration_repository.get_by_event_and_account(
-            event_id=event_id, account_id=account_id
+    def count_by_event(self, event_id: uuid.UUID) -> int:
+        statement = select(func.count()).select_from(Registration).where(Registration.event_id == event_id)
+        return self.session.exec(statement).one()
+
+    def get_attendees_by_event(
+        self, event_id: uuid.UUID
+    ) -> list[tuple[Registration, Account, User]]:
+        statement = (
+            select(Registration, Account, User)
+            .join(Account, Account.id == Registration.account_id)
+            .join(User, User.id == Account.user_id)
+            .where(Registration.event_id == event_id)
+            .order_by(Registration.created_at.desc())
         )
-        if existing_registration:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail={
-                    "code": status.HTTP_400_BAD_REQUEST,
-                    "data": None,
-                    "message": "Anda sudah terdaftar pada event ini",
-                },
-            )
-
-        total_registered = self.registration_repository.count_by_event(event_id)
-        if total_registered >= event.quota:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail={
-                    "code": status.HTTP_400_BAD_REQUEST,
-                    "data": None,
-                    "message": "Kuota event sudah penuh",
-                },
-            )
-
-        registration = Registration(account_id=account_id, event_id=event_id)
-        self.registration_repository.create(registration)
-
-        return RegisterEventResponse(
-            code=status.HTTP_201_CREATED,
-            message="Pendaftaran event berhasil",
-            data=None,
-        )
+        return list(self.session.exec(statement).all())

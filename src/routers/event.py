@@ -49,6 +49,18 @@ def register_event(
     )
 
 
+@event_router.get(
+    "/{event_id}/attendees",
+    status_code=status.HTTP_200_OK,
+)
+def get_event_attendees(
+    event_id: Annotated[uuid.UUID, Path(title="The ID of the event")],
+    controller: RegistrationController = Depends(RegistrationController),
+    credentials: HTTPAuthorizationCredentials = Security(HTTPBearer()),
+) -> Response:
+    return controller.get_attendees(event_id)
+
+
 @event_router.get("/{event_id}", status_code=status.HTTP_200_OK)
 def get_event(
     event_id: Annotated[uuid.UUID, Path(title="The ID of the item to get")],

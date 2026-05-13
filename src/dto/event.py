@@ -1,3 +1,4 @@
+import uuid
 from datetime import datetime
 from typing import Sequence
 
@@ -5,6 +6,18 @@ from pydantic import BaseModel, Field
 
 from src.database.models.schema import Event
 from src.dto.base import BaseResponse
+
+
+class AttendeeItem(BaseModel):
+    registration_id: uuid.UUID
+    account_id: uuid.UUID
+    user_id: uuid.UUID
+    email: str
+    username: str
+    first_name: str
+    last_name: str
+    whatsapp_number: str
+    registered_at: datetime
 
 
 class CreateEventRequest(BaseModel):
@@ -57,3 +70,7 @@ class UpdateEventResponse(BaseResponse):
 
 class DeleteEventResponse(BaseResponse):
     pass
+
+
+class GetEventAttendeesResponse(BaseResponse):
+    data: Sequence[AttendeeItem]
