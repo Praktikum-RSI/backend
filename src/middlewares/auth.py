@@ -16,9 +16,14 @@ class ProtectedRoute:
     methods: list[str] = field(
         default_factory=lambda: ["GET", "POST", "PUT", "PATCH", "DELETE"]
     )
+    exact: bool = False
 
     def matches(self, path: str, method: str) -> bool:
-        return path.startswith(self.path) and method.upper() in self.methods
+        if method.upper() not in self.methods:
+            return False
+        if self.exact:
+            return path == self.path
+        return path.startswith(self.path)
 
 
 class AuthMiddleware(BaseHTTPMiddleware):

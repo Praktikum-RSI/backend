@@ -8,24 +8,24 @@ from src.routers.event import event_router
 
 app = FastAPI()
 
+register_exception_handlers(app)
+
 app.add_middleware(
+    AuthMiddleware,
     CORSMiddleware,
     allow_origins=["http://localhost:3000"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
-)
-
-register_exception_handlers(app)
-
-
-app.add_middleware(
-    AuthMiddleware,
+    
     protected_routes=[
-        ProtectedRoute("/logout", ["POST"]),
+        ProtectedRoute("/logout", ["POST"], exact=True),
+        ProtectedRoute("/events/", ["POST"], exact=False),
     ],
     admin_routes=[
-        ProtectedRoute("/events", ["POST", "PATCH", "DELETE"]),
+        ProtectedRoute("/events", ["POST"], exact=True),
+        ProtectedRoute("/events/", ["POST"], exact=True),
+        ProtectedRoute("/events/", ["PATCH", "DELETE"], exact=False),
     ],
 )
 

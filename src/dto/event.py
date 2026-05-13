@@ -25,6 +25,10 @@ class CreateEventResponse(BaseResponse):
     pass
 
 
+class RegisterEventResponse(BaseResponse):
+    pass
+
+
 class GetEventsResponse(BaseResponse):
     data: Sequence[Event]
 

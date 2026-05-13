@@ -39,6 +39,7 @@ class Account(SQLModel, table=True):
 
     user: User = Relationship(back_populates="accounts")
     role: Role = Relationship(back_populates="accounts")
+    registrations: list["Registration"] = Relationship(back_populates="account")
 
 
 class Event(SQLModel, table=True):
@@ -51,3 +52,16 @@ class Event(SQLModel, table=True):
     end_at: datetime
     created_at: datetime = Field(default_factory=datetime.now)
     updated_at: datetime = Field(default_factory=datetime.now)
+    registrations: list["Registration"] = Relationship(back_populates="event")
+
+
+class Registration(SQLModel, table=True):
+    __table_args__ = {"extend_existing": True}
+    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+    account_id: uuid.UUID = Field(foreign_key="account.id")
+    event_id: uuid.UUID = Field(foreign_key="event.id")
+    created_at: datetime = Field(default_factory=datetime.now)
+    updated_at: datetime = Field(default_factory=datetime.now)
+
+    account: "Account" = Relationship(back_populates="registrations")
+    event: Event = Relationship(back_populates="registrations")

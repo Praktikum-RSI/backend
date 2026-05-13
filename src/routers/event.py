@@ -5,6 +5,7 @@ from fastapi import APIRouter, Depends, Path, Response, Security, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
 from src.controllers.event import EventController
+from src.controllers.registration import RegistrationController
 from src.dto.event import (
     CreateEventRequest,
     UpdateEventRequest,
@@ -30,6 +31,18 @@ def get_events(
     controller: EventController = Depends(EventController),
 ) -> Response:
     return controller.get_events()
+
+
+@event_router.post(
+    "/{event_id}/register",
+    status_code=status.HTTP_201_CREATED,
+)
+def register_event(
+    event_id: Annotated[uuid.UUID, Path(title="The ID of the event to register")],
+    controller: RegistrationController = Depends(RegistrationController),
+    credentials: HTTPAuthorizationCredentials = Security(HTTPBearer()),
+) -> Response:
+    return controller.register_to_event(event_id)
 
 
 @event_router.get("/{event_id}", status_code=status.HTTP_200_OK)
