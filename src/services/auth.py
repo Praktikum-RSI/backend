@@ -35,10 +35,10 @@ class AuthService:
         self.jwtUtils = jwtUtils
 
     def register(self, data: RegisterRequest) -> RegisterResponse:
-        role = self.roleRepository.get_by_name("ADMIN")
+        role = self.roleRepository.get_by_name("USER")
 
         if not role:
-            role = self.roleRepository.create(Role(name="ADMIN"))
+            role = self.roleRepository.create(Role(name="USER"))
 
         user = self.userRepository.create(
             User(

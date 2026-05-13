@@ -21,7 +21,7 @@ dependencies = [
 packages = [{include = "backend", from = "src"}]
 
 [tool.poe.tasks]
-dev = "fastapi dev src/app.py"
+dev = "poetry run fastapi dev src/app.py"
 lint = "poetry run ruff check src/"
 lint-fix = "poetry run ruff check src/ --fix"
 

@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
 from src.middlewares.auth import AuthMiddleware, ProtectedRoute
 from src.middlewares.error import register_exception_handlers
@@ -6,6 +7,14 @@ from src.routers.auth import auth_router
 from src.routers.event import event_router
 
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 register_exception_handlers(app)
 
