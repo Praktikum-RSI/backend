@@ -40,6 +40,32 @@ class AuthService:
         if not role:
             role = self.roleRepository.create(Role(name="USER"))
 
+        existing_email = self.accountRepository.get_by_email_or_username(data.email)
+
+        if existing_email:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail={
+                    "code": status.HTTP_409_CONFLICT,
+                    "data": None,
+                    "message": "Email already registered",
+                },
+            )
+
+        existing_username = self.accountRepository.get_by_email_or_username(
+            data.username
+        )
+
+        if existing_username:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail={
+                    "code": status.HTTP_409_CONFLICT,
+                    "data": None,
+                    "message": "Username already registered",
+                },
+            )
+
         user = self.userRepository.create(
             User(
                 first_name=data.first_name,
@@ -99,7 +125,7 @@ class AuthService:
             code=status.HTTP_200_OK,
             data=LoginData(
                 access_token=access_token,
-                refresh_token="",
+                refresh_token="testing",
             ),
             message="Login berhasil",
         )

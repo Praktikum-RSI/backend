@@ -4,6 +4,22 @@ from datetime import datetime
 from sqlmodel import Field, Relationship, SQLModel
 
 
+class AuditLog(SQLModel, table=True):
+    __table_args__ = {"extend_existing": True}
+    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+    request_id: str | None
+    method: str
+    path: str
+    query_params: str | None
+    status_code: int
+    duration_ms: float
+    client_ip: str | None
+    user_agent: str | None
+    account_id: uuid.UUID | None
+    content_type: str | None
+    created_at: datetime = Field(default_factory=datetime.now)
+
+
 class Role(SQLModel, table=True):
     __table_args__ = {"extend_existing": True}
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)

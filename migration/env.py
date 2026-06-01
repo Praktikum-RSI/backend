@@ -4,7 +4,13 @@ from alembic import context
 from sqlalchemy import engine_from_config, pool
 from sqlmodel import SQLModel
 
-from src.database.models.schema import Account, Event, Role, User  # noqa: F401
+from src.database.models.schema import (  # noqa: F401
+    Account,
+    AuditLog,
+    Event,
+    Role,
+    User,
+)
 from src.utils.env import DATABASE_URL
 
 # this is the Alembic Config object, which provides

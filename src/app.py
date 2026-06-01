@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from src.middlewares.audit import AuditMiddleware
 from src.middlewares.auth import AuthMiddleware, ProtectedRoute
 from src.middlewares.error import register_exception_handlers
 from src.routers.auth import auth_router
@@ -10,7 +11,7 @@ app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],
+    allow_origins=["http://localhost:3009"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -29,6 +30,10 @@ app.add_middleware(
         ProtectedRoute("/events/", ["POST"], exact=True),
         ProtectedRoute("/events/", ["PATCH", "DELETE"], exact=False),
     ],
+)
+
+app.add_middleware(
+    AuditMiddleware,
 )
 
 
